@@ -1,1 +1,31 @@
+version: 0.1
+phases:
+  pre_build: 
+    commands: 
+      - echo Logging in to Docker Hub...
+      - aws --version
+      - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 414006086822.dkr.ecr.us-west-2.amazonaws.com
+      - REPOSITORY_URI=414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+  build: 
+    commands: 
+      - echo Build started on `date`
+      - echo building the Jar file
+      - mvn clean install
+      - echo Building the Docker image...
+      - docker build -t my-first-ecr-repo1 .
+      - docker images
+      - echo deploying repository and image uri
+      - docker tag my-first-ecr-repo1:latest 414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1:build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images..
+      - docker push 414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1
+      - docker push 414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1:build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - echo Writing image definitions file...
+      - printf '[{"name":"my-first-ecr-repo1","imageUri":"%s"}]' 414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1:build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}') > imagedefinitions.json
+      - cat imagedefinitions.json
+artifacts:
+    files: imagedefinitions.json
 
