@@ -13,10 +13,10 @@ phases:
       - echo building the Jar file
       - mvn clean install
       - echo Building the Docker image...
-      - docker build -t 414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1:latest .
+      - docker build -t my-first-ecr-repo1 .
       - docker images
       - echo deploying repository and image uri
-      - docker tag 414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1:latest 414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1:build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - docker tag my-first-ecr-repo1:latest 414006086822.dkr.ecr.us-west-2.amazonaws.com/my-first-ecr-repo1:build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
   post_build:
     commands:
       - echo Build completed on `date`
