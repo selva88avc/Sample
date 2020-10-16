@@ -1,6 +1,6 @@
 version: 0.1
 phases:
-  pre_build: 
+  pre_build111111: 
     commands: 
       - echo Logging in to Docker Hub...
       - aws --version
